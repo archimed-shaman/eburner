@@ -3,4 +3,8 @@ deps
 *.o
 *.beam
 *.plt
+ebin
+rel/eburner
+.idea
+eburner.iml
 erl_crash.dump

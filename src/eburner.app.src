@@ -1,0 +1,12 @@
+{application, eburner,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { eburner_app, []}},
+  {env, []}
+ ]}.

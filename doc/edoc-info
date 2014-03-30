@@ -1,0 +1,4 @@
+%% encoding: UTF-8
+{application,eburner}.
+{packages,[]}.
+{modules,[eburner,eburner_app,eburner_holder,eburner_logger,eburner_sup]}.
