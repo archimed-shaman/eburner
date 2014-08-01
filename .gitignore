@@ -4,6 +4,7 @@ deps
 *.beam
 *.plt
 ebin
+doc
 rel/eburner
 .idea
 eburner.iml

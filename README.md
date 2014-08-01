@@ -1,7 +1,9 @@
 eburner
 =======
 
-Simple configuration server for etoml syntax.
+Simple configuration server for pfile syntax.
+
+NOTE: since 1.1.0.0 the parser has been changed from etoml(https://github.com/kalta/etoml.git) to pfile (https://github.com/archimed-shaman/pfile.git).
 
 Usage:
 
@@ -21,7 +23,7 @@ Example:
 Erlang R16B03-1 (erts-5.10.4) [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false]
 
 Eshell V5.10.4  (abort with ^G)
-1> code:add_path("../deps/etoml/ebin").
+1> code:add_path("../deps/pfile/ebin").
 true
 2>
 2> Name = "./test.cfg".

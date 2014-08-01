@@ -1,20 +1,26 @@
-all:
-	(rebar get-deps compile generate)
+REBAR:=rebar
+
+.PHONY: all erl test clean doc build_plt check
+
+all: erl
+
+erl:
+	$(REBAR) get-deps compile
+
+test: all
+	@mkdir -p .eunit
+	$(REBAR) skip_deps=true eunit
 
 clean:
-	(rebar clean)
+	$(REBAR) clean
+	-rm -rvf deps ebin doc .eunit
 
-distclean:
-	(rebar clean delete-deps)
-
-tests:
-	(rebar eunit)
-
-docs:
-	(rebar doc)
+doc:
+	$(REBAR) doc
 
 build_plt:
-	(dialyzer --build_plt --output_plt dialyzer.plt --apps erts kernel stdlib crypto mnesia sasl common_test ssl reltool eunit -r ./deps/*/ebin)
+	(dialyzer --build_plt --output_plt dialyzer.plt --apps erts kernel stdlib crypto mnesia sasl common_test ssl reltool eunit )
 
+# dialyzer --get_warnings --build_plt --apps erts kernel stdlib crypto mnesia sasl eunit xmerl
 check:
-	(dialyzer --plt dialyzer.plt -I ./include/ -c ./src/*.erl)
+	(dialyzer --get_warnings --plt dialyzer.plt -c ./src/*.erl)

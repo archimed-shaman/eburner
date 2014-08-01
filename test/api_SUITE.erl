@@ -106,7 +106,7 @@ simple_config() ->
         [primary]
         primary1 = \"value1\"",
     {ok, _} = eburner:load(ConfigName, fun() -> Config end),
-    {ok, ParsedConfig} = etoml:parse(Config),
+    {ok, ParsedConfig} = pfile:parse(Config),
     ?assertEqual({config, ParsedConfig}, eburner:get_config(ConfigName)).
 
 
@@ -137,15 +137,15 @@ subscription() ->
                      Value
              end,
 
-    {ok, ConfigETOML1} = etoml:parse(Getter()),
+    {ok, ConfigPFILE1} = pfile:parse(Getter()),
     {ok, _} = eburner:load(ConfigName, Getter),
-    ?assertEqual({config, ConfigETOML1}, eburner:subscribe(ConfigName)),
+    ?assertEqual({config, ConfigPFILE1}, eburner:subscribe(ConfigName)),
 
     ets:insert(TabId, {config, Config2}),
-    {ok, ConfigETOML2} = etoml:parse(Getter()),
+    {ok, ConfigPFILE2} = pfile:parse(Getter()),
     ok = eburner:reload(ConfigName),
     receive
-        Message -> ?assertEqual({config, ConfigETOML2}, Message)
+        Message -> ?assertEqual({config, ConfigPFILE2}, Message)
     after 1000 -> ?assert(true)
     end.
 
@@ -165,7 +165,7 @@ subscription_failed_reload() ->
                 key1 = \"value1\"
                 key2 = 123",
 
-    Config2 = "[general]\n key1 = value2\n key2 = 321",
+    Config2 = "[general\n key1 = value2\n key2 = 321",
 
     TabId = ets:new(reloadableConfig, []),
     ets:insert(TabId, {config, Config1}),
@@ -175,16 +175,16 @@ subscription_failed_reload() ->
                      Value
              end,
 
-    {ok, ConfigETOML1} = etoml:parse(Getter()),
+    {ok, ConfigPFILE1} = pfile:parse(Getter()),
     {ok, _} = eburner:load(ConfigName, Getter),
-    ?assertEqual({config, ConfigETOML1}, eburner:subscribe(ConfigName)),
+    ?assertEqual({config, ConfigPFILE1}, eburner:subscribe(ConfigName)),
 
     ets:insert(TabId, {config, Config2}),
-    {error, _} = etoml:parse(Getter()),
+    {error, _} = pfile:parse(Getter()),
     {error, _} = eburner:reload(ConfigName),
     receive
         _ -> ?assert(true)
-    after 1000 -> ?assertEqual({config, ConfigETOML1}, eburner:get_config(ConfigName))
+    after 1000 -> ?assertEqual({config, ConfigPFILE1}, eburner:get_config(ConfigName))
     end.
 
 
@@ -212,14 +212,14 @@ unchanged_config() ->
                      Value
              end,
 
-    {ok, ConfigETOML1} = etoml:parse(Getter()),
+    {ok, ConfigPFILE1} = pfile:parse(Getter()),
     {ok, _} = eburner:load(ConfigName, Getter),
-    ?assertEqual({config, ConfigETOML1}, eburner:subscribe(ConfigName)),
+    ?assertEqual({config, ConfigPFILE1}, eburner:subscribe(ConfigName)),
 
     ets:insert(TabId, {config, Config2}),
-    {ok, _} = etoml:parse(Getter()),
+    {ok, _} = pfile:parse(Getter()),
     ok = eburner:reload(ConfigName),
     receive
         _ -> ?assert(true)
-    after 1000 -> ?assertEqual({config, ConfigETOML1}, eburner:get_config(ConfigName))
+    after 1000 -> ?assertEqual({config, ConfigPFILE1}, eburner:get_config(ConfigName))
     end.

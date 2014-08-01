@@ -196,7 +196,7 @@ reload(ConfigName) when is_binary(ConfigName) ->
 init(Args) ->
     ConfigGetter =  proplists:get_value(config_getter, Args),
     Name =  proplists:get_value(name, Args),
-    case try etoml:parse(ConfigGetter()) catch _:Exception -> {error, Exception} end of
+    case try pfile:parse(ConfigGetter()) catch _:Exception -> {error, Exception} end of
         {ok, CurrentConfig} ->
             ?INFO(io_lib:format("eburner: Config has been loaded: ~p", [Name])),
             {ok, #state{config_getter = ConfigGetter, current_config = CurrentConfig, name = Name}};
@@ -276,7 +276,7 @@ handle_call(reload, _From, #state{config_getter = ConfigGetter,
                                   subscribers = Subscribers,
                                   name = Name,
                                   current_config = CurrentConfig} = State) ->
-    case try etoml:parse(ConfigGetter()) catch _:Exception -> {error, Exception} end of
+    case try pfile:parse(ConfigGetter()) catch _:Exception -> {error, Exception} end of
         {ok, Config} ->
             case equal_config(Config, CurrentConfig) of
                 false ->
