@@ -7,5 +7,7 @@ ebin
 doc
 rel/eburner
 .idea
+.edts
+.rebar
 eburner.iml
 erl_crash.dump

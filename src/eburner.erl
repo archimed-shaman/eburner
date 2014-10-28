@@ -48,8 +48,6 @@
 %%% API
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @doc
 %% Loads the new the config with the help of Getter and starts the new
@@ -57,8 +55,11 @@
 %% @end
 %%--------------------------------------------------------------------
 
--spec(load(ConfigName :: binary(), Getter :: fun(() -> string())) ->
-             supervisor:startchild_ret()).
+-spec load(ConfigName, Getter) -> Result when
+      ConfigName :: binary(),
+      Getter :: fun(() -> string()),
+      Result :: supervisor:startchild_ret().
+
 
 load(ConfigName, Getter) when is_binary(ConfigName), is_function(Getter) ->
     eburner_sup:start_holder(ConfigName, Getter).
@@ -71,8 +72,14 @@ load(ConfigName, Getter) when is_binary(ConfigName), is_function(Getter) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(unload(ConfigName :: binary()) ->
-             'ok' | {'error', Error :: 'running' | 'restarting' | 'not_found' | 'simple_one_for_one'}).
+-spec unload(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: 'ok' | {'error', Error},
+      Error :: 'running' |
+               'restarting' |
+               'not_found' |
+               'simple_one_for_one'.
+
 
 unload(ConfigName) when is_binary(ConfigName) ->
     eburner_sup:stop_holder(ConfigName).
@@ -92,8 +99,12 @@ unload(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(set_logger(Logger :: fun((Level :: debug | trace | info | warning | error, Msg :: string()) -> ok)) ->
-             Reply :: ok).
+-spec set_logger(Logger) -> Result when
+      Logger :: fun((Level, Msg) -> ok),
+      Result :: ok,
+      Level :: debug | trace | info | warning | error,
+      Msg :: string().
+
 
 set_logger(Logger) when is_function(Logger) ->
     eburner_logger:set_logger(Logger).
@@ -107,7 +118,11 @@ set_logger(Logger) when is_function(Logger) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(get_config(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec get_config(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 get_config(ConfigName) when is_binary(ConfigName) ->
     eburner_holder:get_config(ConfigName).
@@ -123,7 +138,11 @@ get_config(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(subscribe(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec subscribe(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 subscribe(ConfigName) when is_binary(ConfigName) ->
     eburner_holder:subscribe(ConfigName).
@@ -139,7 +158,12 @@ subscribe(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(subscribe(ConfigName :: binary(), Pid :: pid()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec subscribe(ConfigName, Pid) -> Result when
+      ConfigName :: binary(),
+      Pid :: pid(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
     eburner_holder:subscribe(ConfigName, Pid).
@@ -153,7 +177,11 @@ subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(unsubscribe(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec unsubscribe(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 unsubscribe(ConfigName) when is_binary(ConfigName) ->
     eburner_holder:unsubscribe(ConfigName).
@@ -167,7 +195,12 @@ unsubscribe(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(unsubscribe(ConfigName :: binary(), Pid :: pid()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec unsubscribe(ConfigName, Pid) -> Result when
+      ConfigName :: binary(),
+      Pid :: pid(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
     eburner_holder:unsubscribe(ConfigName, Pid).
@@ -180,7 +213,12 @@ unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(reload(ConfigName :: binary()) -> Reply :: ok | {error, Error :: term()}).
+-spec reload(ConfgigName) -> Result when
+      ConfgigName :: binary(),
+      Result :: ok | {error, Error},
+      Error :: term().
+
 
 reload(ConfigName) when is_binary(ConfigName) ->
     eburner_holder:reload(ConfigName).
+

@@ -65,16 +65,19 @@
 %%% API
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the server
 %% @end
 %%--------------------------------------------------------------------
 
--spec(start_link(Name :: binary(), ConfigGetter :: fun()) ->
-             {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
+-spec start_link(Name, ConfigGetter) -> Result when
+      Name :: binary(),
+      ConfigGetter :: fun(() -> string()),
+      Result :: {ok, Pid} | ignore | {error, Reason},
+      Pid :: pid(),
+      Reason :: term().
+
 
 start_link(Name, ConfigGetter) when is_binary(Name), is_function(ConfigGetter)->
     ?DEBUG(io_lib:format("eburner: Starting new config server (~p)...", [Name])),
@@ -90,7 +93,11 @@ start_link(Name, ConfigGetter) when is_binary(Name), is_function(ConfigGetter)->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(get_config(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec get_config(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 get_config(ConfigName) when is_binary(ConfigName) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -107,7 +114,11 @@ get_config(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(subscribe(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec subscribe(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 subscribe(ConfigName) when is_binary(ConfigName) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -124,7 +135,12 @@ subscribe(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(subscribe(ConfigName :: binary(), Pid :: pid()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec subscribe(ConfigName, Pid) -> Result when
+      ConfigName :: binary(),
+      Pid :: pid(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -139,7 +155,11 @@ subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(unsubscribe(ConfigName :: binary()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec unsubscribe(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 unsubscribe(ConfigName) when is_binary(ConfigName) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -154,7 +174,12 @@ unsubscribe(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(unsubscribe(ConfigName :: binary(), Pid :: pid()) -> Reply :: {config, CurrentConfig :: string()}).
+-spec unsubscribe(ConfigName, Pid) -> Result when
+      ConfigName :: binary(),
+      Pid :: pid(),
+      Result :: {config, CurrentConfig},
+      CurrentConfig :: string().
+
 
 unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -168,7 +193,11 @@ unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(reload(ConfigName :: binary()) -> Reply :: ok | {error, Error :: term()}).
+-spec reload(ConfgigName) -> Result when
+      ConfgigName :: binary(),
+      Result :: ok | {error, Error},
+      Error :: term().
+
 
 reload(ConfigName) when is_binary(ConfigName) ->
     ServerName = ?FILE_TO_NAME(ConfigName),
@@ -180,8 +209,6 @@ reload(ConfigName) when is_binary(ConfigName) ->
 %%% gen_server callbacks
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -189,9 +216,14 @@ reload(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(init(Args :: term()) ->
-             {ok, State :: #state{}} |
-             {stop, {error, Reason :: term()}} | ignore).
+-spec init(Args) -> Result when
+      Args :: [proplists:property()],
+      Result :: {ok, State} |
+                {stop, {error, Reason}} |
+                ignore,
+      State :: #state{},
+      Reason :: term().
+
 
 init(Args) ->
     ConfigGetter =  proplists:get_value(config_getter, Args),
@@ -218,10 +250,17 @@ init(Args) ->
                | {config, CurrentConfig :: string()}
                | {error, Error :: term()}.
 
--spec(handle_call(Request :: term(), From :: {pid(), Tag :: term()},
-                  State :: #state{}) ->
-             {reply, Reply :: reply(), NewState :: #state{}} |
-             {noreply, NewState :: #state{}}).
+-spec handle_call(Request, From, State) -> Result when
+      Request :: term(),
+      From :: {Pid, Tag},
+      Pid :: pid(),
+      Tag :: term(),
+      State :: #state{},
+      Result :: {reply, Reply, NewState} |
+                {noreply, NewState},
+      Reply :: reply(),
+      NewState :: #state{}.
+      
 
 %% handle get_config
 
@@ -307,8 +346,12 @@ handle_call(Request, From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(handle_cast(Request :: term(), State :: #state{}) ->
-             {noreply, NewState :: #state{}}).
+-spec handle_cast(Request, State) -> Result when
+      Request :: term(),
+      State :: #state{},
+      Result :: {noreply, NewState},
+      NewState :: #state{}.
+
 
 handle_cast(Request, State) ->
     ?DEBUG(io_lib:format("eburner: Unknown cast message: ~p", [Request])),
@@ -323,8 +366,12 @@ handle_cast(Request, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(handle_info(Info :: timeout() | term(), State :: #state{}) ->
-             {noreply, NewState :: #state{}}).
+-spec handle_info(Info, State) -> Result when
+      Info :: timeout() | term(),
+      State :: #state{},
+      Result :: {noreply, NewState},
+      NewState :: #state{}.
+
 
 %% handle 'DOWN' signal (the subscribed process stopped)
 
@@ -353,8 +400,11 @@ handle_info(Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
-                State :: #state{}) -> term()).
+-spec terminate(Reason, State) -> Result when
+      Reason :: normal |  shutdown | {shutdown, term()} | term(),
+      State :: #state{},
+      Result :: term().
+
 
 terminate(_Reason, _State) ->
     ok.
@@ -368,9 +418,15 @@ terminate(_Reason, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(code_change(OldVsn :: term() | {down, term()}, State :: #state{},
-                  Extra :: term()) ->
-             {ok, NewState :: #state{}} | {error, Reason :: term()}).
+-spec code_change(OldVersion, State, Extra) -> Result when
+      OldVersion :: term() | {down, term()},
+      State :: #state{},
+      Extra :: term(),
+      Result :: {ok, NewState} |
+                {error, Reason},
+      NewState :: #state{},
+      Reason :: term().
+
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
@@ -381,8 +437,6 @@ code_change(_OldVsn, State, _Extra) ->
 %%% Internal functions
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -390,7 +444,11 @@ code_change(_OldVsn, State, _Extra) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(equal_config(list(), list()) -> boolean()).
+-spec equal_config(Config1, Config2) -> Result when
+      Config1 :: list(),
+      Config2 :: list(),
+      Result :: boolean().
+
 
 equal_config([], [])                   -> true;
 equal_config(_, [])                    -> false;

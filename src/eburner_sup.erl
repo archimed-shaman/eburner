@@ -52,14 +52,17 @@
 %% API functions
 %% ===================================================================
 
-
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the supervisor
 %% @end
 %%--------------------------------------------------------------------
 
--spec(start_link() -> {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
+-spec start_link() -> Result when
+      Result :: {ok, Pid} | ignore | {error, Reason},
+      Pid :: pid(),
+      Reason :: term().
+
 
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
@@ -74,8 +77,11 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(start_holder(ConfigName :: binary(), ConfigGetter :: fun(() -> string())) ->
-             supervisor:startchild_ret()).
+-spec start_holder(ConfigName, ConfigGetter) -> Result when
+      ConfigName :: binary(),
+      ConfigGetter :: fun(() -> string()),
+      Result :: supervisor:startchild_ret().
+
 
 start_holder(ConfigName, ConfigGetter) when is_binary(ConfigName), is_function(ConfigGetter) ->
     HolderSpec = {?CHILD_ID(?FILE_TO_NAME(ConfigName)),
@@ -92,9 +98,11 @@ start_holder(ConfigName, ConfigGetter) when is_binary(ConfigName), is_function(C
 %% @end
 %%--------------------------------------------------------------------
 
--spec(stop_holder(ConfigName :: binary()) ->
-             ok |
-             {error, Error :: running | restarting | not_found | simple_one_for_one}).
+-spec stop_holder(ConfigName) -> Result when
+      ConfigName :: binary(),
+      Result :: ok | {error, Error},
+      Error :: running | restarting | not_found | simple_one_for_one.
+
 
 stop_holder(ConfigName) when is_binary(ConfigName) ->
     Id = ?CHILD_ID(?FILE_TO_NAME(ConfigName)),
@@ -107,8 +115,6 @@ stop_holder(ConfigName) when is_binary(ConfigName) ->
 %% Supervisor callbacks
 %% ===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -119,12 +125,15 @@ stop_holder(ConfigName) when is_binary(ConfigName) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(init(Args :: term()) -> {ok, {SupFlags :: {RestartStrategy :: supervisor:strategy(),
-                                                 MaxR :: non_neg_integer(),
-                                                 MaxT :: non_neg_integer()},
-                                    [ChildSpec :: supervisor:child_spec()]}
-                              } |
-                              ignore).
+-spec init(Args) -> Result when
+      Args :: term(),
+      Result :: {ok, {SupFlags, [ChildSpec]}} | ignore,
+      SupFlags :: {RestartStrategy, MaxR, MaxT},
+      RestartStrategy :: supervisor:strategy(),
+      MaxR :: non_neg_integer(),
+      MaxT :: non_neg_integer(),
+      ChildSpec :: supervisor:child_spec().
+
 
 init([]) ->
     LoggerSpec = {eburner_logger, {eburner_logger, start_link, []},

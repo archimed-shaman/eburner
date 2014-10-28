@@ -42,8 +42,6 @@
 %%% Application callbacks
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -52,15 +50,19 @@
 %% application. If the application is structured according to the OTP
 %% design principles as a supervision tree, this means starting the
 %% top supervisor of the tree.
-%%
 %% @end
 %%--------------------------------------------------------------------
 
--spec(start(StartType :: normal | {takeover, node()} | {failover, node()},
-            StartArgs :: term()) ->
-             {ok, pid()} |
-             {ok, pid(), State :: term()} |
-             {error, Reason :: term()}).
+-spec start(StartType, StartArgs) -> Result when
+      StartType :: normal | {takeover, node()} | {failover, node()},
+      StartArgs :: term(),
+      Result :: {ok, Pid} |
+                {ok, Pid, State} |
+                {error, Reason},
+      Pid :: pid(),
+      State :: term(),
+      Reason :: term().
+
 
 start(_StartType, _StartArgs) ->
     eburner_sup:start_link().
@@ -73,11 +75,13 @@ start(_StartType, _StartArgs) ->
 %% This function is called whenever an application has stopped. It
 %% is intended to be the opposite of Module:start/2 and should do
 %% any necessary cleaning up. The return value is ignored.
-%%
 %% @end
 %%--------------------------------------------------------------------
 
--spec(stop(State :: term()) -> term()).
+-spec stop(State) -> Result when
+      State :: term(),
+      Result :: term().
+
 
 stop(_State) ->
     ok.

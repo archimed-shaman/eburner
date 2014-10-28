@@ -62,15 +62,17 @@
 %%% API
 %%%===================================================================
 
-
-
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts the server without parameters
 %% @end
 %%--------------------------------------------------------------------
 
--spec(start_link() -> {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
+-spec start_link() -> Result when
+      Result :: {ok, Pid} | ignore | {error, Reason},
+      Pid :: pid(),
+      Reason :: term().
+                    
 
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
@@ -85,8 +87,14 @@ start_link() ->
 
 -type log_level() :: debug | trace | info | warning | error.
 
--spec(start_link(Logger :: fun((Level :: log_level(), Msg :: string()) -> ok)) ->
-             {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
+-spec start_link(Logger) -> Result when
+      Logger :: fun((Level, Msg) -> ok),
+      Level :: log_level(),
+      Msg :: string(),
+      Result :: {ok, Pid} | ignore | {error, Reason},
+      Pid :: pid(),
+      Reason :: term().
+
 
 start_link(Logger) when is_function(Logger) ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [{log_fun, Logger}], []).
@@ -99,7 +107,10 @@ start_link(Logger) when is_function(Logger) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (debug(Msg :: string()) -> Reply :: ok).
+-spec debug(Msg) -> Result when
+      Msg :: string(),
+      Result :: ok.
+
 
 debug(Msg) ->
     gen_server:call(?SERVER, {debug, Msg}).
@@ -112,7 +123,10 @@ debug(Msg) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (trace(Msg :: string()) -> Reply :: ok).
+-spec trace(Msg) -> Result when
+      Msg :: string(),
+      Result :: ok.
+
 
 trace(Msg) ->
     gen_server:call(?SERVER, {trace, Msg}).
@@ -125,7 +139,10 @@ trace(Msg) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (info(Msg :: string()) -> Reply :: ok).
+-spec info(Msg) -> Result when
+      Msg :: string(),
+      Result :: ok.
+
 
 info(Msg) ->
     gen_server:call(?SERVER, {info, Msg}).
@@ -138,7 +155,10 @@ info(Msg) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (warning(Msg :: string()) -> Reply :: ok).
+-spec warning(Msg) -> Result when
+      Msg :: string(),
+      Result :: ok.
+
 
 warning(Msg) ->
     gen_server:call(?SERVER, {warning, Msg}).
@@ -151,7 +171,10 @@ warning(Msg) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (error(Msg :: string()) -> Reply :: ok).
+-spec error(Msg) -> Result when
+      Msg :: string(),
+      Result :: ok.
+
 
 error(Msg) ->
     gen_server:call(?SERVER, {error, Msg}).
@@ -164,8 +187,12 @@ error(Msg) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec (set_logger(Logger :: fun((Level :: log_level(), Msg :: string()) -> ok)) ->
-              Reply :: ok).
+-spec set_logger(Logger) -> Result when
+      Logger :: fun((Level, Msg) -> ok),
+      Level :: log_level(),
+      Msg :: string(),
+      Result :: ok.
+
 
 set_logger(Logger) when is_function(Logger) ->
     gen_server:call(?SERVER, {set_logger, Logger}).
@@ -185,7 +212,11 @@ set_logger(Logger) when is_function(Logger) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(init(Args :: term()) -> {ok, State :: #state{}}).
+-spec init(Args) -> Result when
+      Args :: [] | [proplists:property()],
+      Result :: {ok, State},
+      State :: #state{}.
+
 
 init([]) ->
     {ok, #state{}};
@@ -206,8 +237,15 @@ init(Args) ->
 -type sync_request() :: {set_logger, Logger :: fun((Level :: log_level(), Msg :: string()) -> ok)}
                       | {Type :: log_level(), Msg :: string()}.
 
--spec(handle_call(Request :: sync_request(), From :: {pid(), Tag :: term()}, State :: #state{}) ->
-             {reply, ok, NewState :: #state{}}).
+-spec handle_call(Request, From, State) -> Result when
+      Request :: sync_request(),
+      From :: {Pid, Tag},
+      State :: #state{},
+      Pid :: pid(),
+      Tag :: term(),
+      Result :: {reply, ok, NewState},
+      NewState :: #state{}.
+
 
 %% handle {set_logger, Logger}
 
@@ -233,8 +271,12 @@ handle_call({Type, Msg}, _From, #state{log_fun = Logger} = State) when Type == d
 %% @end
 %%--------------------------------------------------------------------
 
--spec(handle_cast(Request :: term(), State :: #state{}) ->
-             {noreply, NewState :: #state{}}).
+-spec handle_cast(Request, State) -> Result when
+      Request :: term(),
+      State :: #state{},
+      Result :: {noreply, NewState},
+      NewState :: #state{}.
+
 
 handle_cast(_Request, State) ->
     {noreply, State}.
@@ -248,8 +290,12 @@ handle_cast(_Request, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(handle_info(Info :: timeout() | term(), State :: #state{}) ->
-             {noreply, NewState :: #state{}}).
+-spec handle_info(Info, State) -> Result when
+      Info :: timeout() | term(),
+      State :: #state{},
+      Result :: {noreply, NewState},
+      NewState :: #state{}.
+
 
 handle_info(_Info, State) ->
     {noreply, State}.
@@ -268,8 +314,11 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
-                State :: #state{}) -> term()).
+-spec terminate(Reason, State) -> Result when
+      Reason :: normal | shutdown | {shutdown, term()} | term(),
+      State :: #state{},
+      Result :: ok.
+
 
 terminate(_Reason, _State) ->
     ok.
@@ -283,8 +332,15 @@ terminate(_Reason, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 
--spec(code_change(OldVsn :: term() | {down, term()}, State :: #state{}, Extra :: term()) ->
-             {ok, NewState :: #state{}} | {error, Reason :: term()}).
+-spec code_change(OldVersion, State, Extra) -> Result when
+      OldVersion :: term() | {down, term()},
+      State :: #state{},      
+      Extra :: term(),
+      Result :: {ok, NewState} |
+                {error, Reason},
+      NewState :: #state{},
+      Reason :: term().
+
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.

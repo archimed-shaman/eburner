@@ -15,6 +15,9 @@ clean:
 	$(REBAR) clean
 	-rm -rvf deps ebin doc .eunit
 
+distclean:
+	(rebar clean delete-deps)
+
 doc:
 	$(REBAR) doc
 
