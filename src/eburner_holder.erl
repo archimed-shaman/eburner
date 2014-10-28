@@ -110,13 +110,14 @@ get_config(ConfigName) when is_binary(ConfigName) ->
 %% Returns the current config value, identified by ConfigName and
 %% subscribes the calling pid to receive the messages, when config
 %% is reloaded. The messages looks like
-%%  {config, Config :: string()}
+%%  {config, Name::binary(), Config :: string()}
 %% @end
 %%--------------------------------------------------------------------
 
 -spec subscribe(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -157,7 +158,8 @@ subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 
 -spec unsubscribe(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -247,7 +249,7 @@ init(Args) ->
 %%--------------------------------------------------------------------
 
 -type reply() :: ok
-               | {config, CurrentConfig :: string()}
+               | {config, Name :: binary(), CurrentConfig :: string()}
                | {error, Error :: term()}.
 
 -spec handle_call(Request, From, State) -> Result when
@@ -274,7 +276,7 @@ handle_call(subscribe, {From, _}, #state{current_config = CurrentConfig,
                                          name = Name} = State) ->
     ?TRACE(io_lib:format("eburner: New subscriber from ~p for ~p", [From, Name])),
     MonitorRef = erlang:monitor(process, From),
-    {reply, {config, CurrentConfig}, State#state{subscribers = [{From, MonitorRef} | Subscribers]}};
+    {reply, {config, Name, CurrentConfig}, State#state{subscribers = [{From, MonitorRef} | Subscribers]}};
 
 %% handle {subscribe, From}
 
@@ -319,7 +321,7 @@ handle_call(reload, _From, #state{config_getter = ConfigGetter,
         {ok, Config} ->
             case equal_config(Config, CurrentConfig) of
                 false ->
-                    lists:map(fun({Pid, _}) -> Pid ! {config, Config} end, Subscribers),
+                    lists:map(fun({Pid, _}) -> Pid ! {config, Name, Config} end, Subscribers),
                     ?INFO(io_lib:format("eburner: Config ~p has been reloaded.", [Name])),
                     {reply, ok, State#state{current_config = Config}};
                 _ ->

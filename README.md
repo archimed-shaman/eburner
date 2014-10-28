@@ -53,8 +53,9 @@ eburner: Config has been loaded: <<"./test.cfg">>
 11>
 11> eburner:subscribe(list_to_binary(Name)).
 eburner: New subscriber from <0.33.0> for <<"./test.cfg">>
-{config,[{<<"general">>,
-          [{<<"key2">>,123},{<<"key1">>,<<"value1">>}]}]}
+{config,<<"./test.cfg">>,
+        [{<<"general">>,
+          [{<<"key1">>,<<"value1">>},{<<"key2">>,<<"123">>}]}]}
 12>
 12> ets:insert(TabId, {config, Config2}).
 true
@@ -64,8 +65,9 @@ eburner: Config <<"./test.cfg">> has been reloaded.
 ok
 14>
 14> flush().
-Shell got {config,[{<<"general">>,
-                    [{<<"key2">>,321},{<<"key1">>,<<"value2">>}]}]}
+Shell got {config,<<"./test.cfg">>,
+                  [{<<"general">>,
+                    [{<<"key1">>,<<"value2">>},{<<"key2">>,<<"321">>}]}]}
 ok
 15>
 15> eburner:unsubscribe(list_to_binary(Name)).

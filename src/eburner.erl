@@ -120,7 +120,8 @@ set_logger(Logger) when is_function(Logger) ->
 
 -spec get_config(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -134,13 +135,14 @@ get_config(ConfigName) when is_binary(ConfigName) ->
 %% Returns the current config value, identified by ConfigName and
 %% subscribes the calling pid to receive the messages, when config
 %% is reloaded. The messages looks like
-%%  {config, Config :: string()}
+%%  {config, Name :: binary(), Config :: string()}
 %% @end
 %%--------------------------------------------------------------------
 
 -spec subscribe(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -154,14 +156,15 @@ subscribe(ConfigName) when is_binary(ConfigName) ->
 %% Returns the current config value, identified by ConfigName and
 %% subscribes the Pid to receive the messages, when config
 %% is reloaded. The messages looks like
-%%  {config, Config :: string()}
+%%  {config, Name :: binary(), Config :: string()}
 %% @end
 %%--------------------------------------------------------------------
 
 -spec subscribe(ConfigName, Pid) -> Result when
       ConfigName :: binary(),
       Pid :: pid(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -198,7 +201,8 @@ unsubscribe(ConfigName) when is_binary(ConfigName) ->
 -spec unsubscribe(ConfigName, Pid) -> Result when
       ConfigName :: binary(),
       Pid :: pid(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
