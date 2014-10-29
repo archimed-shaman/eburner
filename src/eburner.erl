@@ -182,8 +182,7 @@ subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 
 -spec unsubscribe(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
-      CurrentConfig :: string().
+      Result :: ok.
 
 
 unsubscribe(ConfigName) when is_binary(ConfigName) ->
@@ -201,9 +200,7 @@ unsubscribe(ConfigName) when is_binary(ConfigName) ->
 -spec unsubscribe(ConfigName, Pid) -> Result when
       ConfigName :: binary(),
       Pid :: pid(),
-      Result :: {config, Name, CurrentConfig},
-      Name :: binary(),
-      CurrentConfig :: string().
+      Result :: ok.
 
 
 unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->

@@ -95,7 +95,8 @@ start_link(Name, ConfigGetter) when is_binary(Name), is_function(ConfigGetter)->
 
 -spec get_config(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -139,7 +140,8 @@ subscribe(ConfigName) when is_binary(ConfigName) ->
 -spec subscribe(ConfigName, Pid) -> Result when
       ConfigName :: binary(),
       Pid :: pid(),
-      Result :: {config, CurrentConfig},
+      Result :: {config, Name, CurrentConfig},
+      Name :: binary(),
       CurrentConfig :: string().
 
 
@@ -158,9 +160,7 @@ subscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
 
 -spec unsubscribe(ConfigName) -> Result when
       ConfigName :: binary(),
-      Result :: {config, Name, CurrentConfig},
-      Name :: binary(),
-      CurrentConfig :: string().
+      Result :: ok.
 
 
 unsubscribe(ConfigName) when is_binary(ConfigName) ->
@@ -179,8 +179,7 @@ unsubscribe(ConfigName) when is_binary(ConfigName) ->
 -spec unsubscribe(ConfigName, Pid) -> Result when
       ConfigName :: binary(),
       Pid :: pid(),
-      Result :: {config, CurrentConfig},
-      CurrentConfig :: string().
+      Result :: ok.
 
 
 unsubscribe(ConfigName, Pid) when is_binary(ConfigName), is_pid(Pid) ->
@@ -266,8 +265,8 @@ init(Args) ->
 
 %% handle get_config
 
-handle_call(get_config, _From, #state{current_config = CurrentConfig} = State) ->
-    {reply, {config, CurrentConfig}, State};
+handle_call(get_config, _From, #state{name = Name, current_config = CurrentConfig} = State) ->
+    {reply, {config, Name, CurrentConfig}, State};
 
 %% handle subscribe
 
